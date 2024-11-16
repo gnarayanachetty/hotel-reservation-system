@@ -29,7 +29,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <Navbar />
-            <main className="min-h-screen bg-background">{children}</main>
+            <main className="min-h-screen bg-background pt-16">{children}</main>
             <Toaster />
           </ThemeProvider>
         </AuthProvider>

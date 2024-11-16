@@ -1,10 +1,28 @@
-import { NextAuthOptions } from "next-auth";
-import { AuthOptions } from "next-auth";
+import { NextAuthOptions, DefaultSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import NextAuth from "next-auth/next";
 import { User } from "@/lib/models/user";
 import connectDB from "@/lib/db/mongodb";
+
+// Add these type declarations at the top of the file
+declare module "next-auth" {
+  interface User {
+    role?: string;
+  }
+  interface Session {
+    user: {
+      id?: string;
+      role?: string;
+    } & DefaultSession["user"]
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    role?: string;
+  }
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -55,8 +73,8 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session?.user) {
-        session.user.role = token.role;
-        session.user.id = token.id;
+        session.user.role = token.role as string | undefined;
+        session.user.id = token.id as string;
       }
       return session;
     },
