@@ -86,7 +86,7 @@ A modern hotel reservation system built with Next.js 14, featuring a sleek UI an
 
 1. Clone the repository:
 
-git clone https://github.com/gnarayanachetty/hotel-management.git
+git clone https://github.com/gnarayanachetty/hotel-reservation-system.git
 
 2. Install dependencies:
 
