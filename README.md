@@ -121,7 +121,7 @@ This project is licensed under Apache License 2.0 - see the [LICENSE](LICENSE) f
 
 ## 👥 Authors
 
-- Your Name - Initial work
+- Narayana Chettt -(https://github.com/gnarayanachetty/)
 
 ## 🙏 Acknowledgments
 
