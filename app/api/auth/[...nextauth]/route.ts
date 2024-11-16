@@ -3,7 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import NextAuth from "next-auth/next";
 import { User } from "@/lib/models/user";
-import connectDB from "@/lib/db/mongodb";
+import { prisma } from "@/lib/db/prisma";
 
 // Add these type declarations at the top of the file
 declare module "next-auth" {
@@ -37,8 +37,9 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid credentials");
         }
 
-        await connectDB();
-        const user = await User.findOne({ email: credentials.email });
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email }
+        });
 
         if (!user || !user.password) {
           throw new Error("Invalid credentials");
@@ -54,7 +55,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         return {
-          id: user._id.toString(),
+          id: user.id,
           name: user.name,
           email: user.email,
           role: user.role,

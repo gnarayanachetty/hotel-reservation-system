@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import connectDB from "@/lib/db/mongodb";
-import { User } from "@/lib/models/user";
+import { prisma } from "@/lib/db/prisma";
 
 export async function POST(req: Request) {
   try {
@@ -14,9 +13,9 @@ export async function POST(req: Request) {
       );
     }
 
-    await connectDB();
-
-    const existingUser = await User.findOne({ email });
+    const existingUser = await prisma.user.findUnique({
+      where: { email }
+    });
     if (existingUser) {
       return NextResponse.json(
         { error: "Email already registered" },
@@ -25,16 +24,19 @@ export async function POST(req: Request) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({
-      name,
-      email,
-      password: hashedPassword,
+    const user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        role: 'USER'
+      }
     });
 
     return NextResponse.json(
       {
         user: {
-          id: user._id.toString(),
+          id: user.id,
           name: user.name,
           email: user.email,
         },

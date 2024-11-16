@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGODB_URI")
+}
+
+model User {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String    @unique
+  password  String
+  role      Role      @default(USER)
+  image     String?
+  phoneNumber String?
+  address    String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  hotels    Hotel[]   @relation("HotelManager")
+  bookings  Booking[]
+  reviews   Review[]
+}
+
+model Hotel {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  location  Json     // Stores city and country
+  rating    Float?
+  images    String[]
+  amenities String[]
+  rooms     Room[]
+  manager   User      @relation("HotelManager", fields: [managerId], references: [id])
+  managerId String    @db.ObjectId
+  policies  Policies?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  bookings  Booking[]
+  reviews   Review[]
+}
+
+model Room {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  number    String
+  type      String
+  price     Float
+  capacity  Int
+  amenities String[]
+  images    String[]
+  status    RoomStatus @default(AVAILABLE)
+  hotel     Hotel    @relation(fields: [hotelId], references: [id])
+  hotelId   String   @db.ObjectId
+  bookings  Booking[]
+}
+
+model Booking {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  user            User      @relation(fields: [userId], references: [id])
+  userId          String    @db.ObjectId
+  hotel           Hotel     @relation(fields: [hotelId], references: [id])
+  hotelId         String    @db.ObjectId
+  room            Room      @relation(fields: [roomId], references: [id])
+  roomId          String    @db.ObjectId
+  checkIn         DateTime
+  checkOut        DateTime
+  guests          Guests
+  totalPrice      Float
+  paymentStatus   PaymentStatus @default(PENDING)
+  paymentIntentId String?
+  status          BookingStatus @default(CONFIRMED)
+  specialRequests String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  reviews         Review[]
+}
+
+model Review {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @db.ObjectId
+  hotel     Hotel    @relation(fields: [hotelId], references: [id])
+  hotelId   String   @db.ObjectId
+  booking   Booking  @relation(fields: [bookingId], references: [id])
+  bookingId String   @db.ObjectId
+  rating    Int
+  comment   String
+  images    String[]
+  response  Response?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+type Location {
+  address     String
+  city        String
+  state       String
+  country     String
+  coordinates Coordinates
+}
+
+type Coordinates {
+  type        String   @default("Point")
+  coordinates Float[]
+}
+
+type Guests {
+  adults    Int
+  children  Int
+}
+
+type Policies {
+  checkInTime        String
+  checkOutTime       String
+  cancellationPolicy String
+}
+
+type Response {
+  comment String
+  date    DateTime
+}
+
+enum Role {
+  USER
+  MANAGER
+  ADMIN
+}
+
+enum RoomStatus {
+  AVAILABLE
+  BOOKED
+  MAINTENANCE
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+} 
