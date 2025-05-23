@@ -10,4 +10,4 @@ export interface Hotel extends Omit<PrismaHotel, 'location'> {
   amenities: string[];
   images: string[];
   rooms: Room[];
-} 
+}
